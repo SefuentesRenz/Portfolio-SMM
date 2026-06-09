@@ -6,9 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "prebuild": "chmod +x node_modules/.bin/vite"
-  },
+    "preview": "vite preview"
+    },
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
