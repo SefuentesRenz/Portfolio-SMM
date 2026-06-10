@@ -758,30 +758,7 @@ export default function App() {
         </div>
       </section>
 
-      <section id="projects" className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
-        <RevealDiv delay="0ms">
-          <div className="mb-10 max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-red-600">Selected work</p>
-            <h3 className="mt-3 text-3xl font-bold text-slate-950">Portfolio sections that show results, not just pretty posts.</h3>
-          </div>
-        </RevealDiv>
-        <div className="grid gap-6 lg:grid-cols-3">
-          {projects.map((project, i) => (
-            <RevealDiv key={project.title} delay={`${i * 100}ms`}>
-              <article className="rounded-[1.75rem] border border-slate-100 bg-white p-6 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-2xl bg-red-600" />
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.28em] text-red-600">Case study</p>
-                    <h4 className="mt-1 text-lg font-semibold text-slate-950">{project.title}</h4>
-                  </div>
-                </div>
-                <p className="mt-5 text-sm leading-7 text-slate-600">{project.result}</p>
-              </article>
-            </RevealDiv>
-          ))}
-        </div>
-      </section>
+      
 
       <section id="contact" className="border-t border-red-50 bg-slate-950 text-white">
         <div className="mx-auto w-full max-w-7xl px-6 py-20 lg:px-8">
