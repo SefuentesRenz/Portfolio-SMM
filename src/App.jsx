@@ -511,7 +511,7 @@ export default function App() {
               I help businesses build polished social presence, stronger engagement, and content systems that look premium and perform consistently.
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
-              <a href="#projects" className="rounded-full bg-red-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-red-200 transition hover:bg-red-700">
+              <a href="#experience-case-study" className="rounded-full bg-red-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-red-200 transition hover:bg-red-700">
                 View Case Studies
               </a>
               <a href="#services" className="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-red-300 hover:text-red-700">
