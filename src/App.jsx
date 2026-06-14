@@ -51,6 +51,21 @@ const sampleProjectGroups = [
       "/assets/graphic-designs/Real-Estate/Buyer & seller consultation (3).png",
       "/assets/graphic-designs/Real-Estate/Buyer & seller consultation (5).png",
       "/assets/graphic-designs/Real-Estate/Buyer & seller consultation (6).png",
+      "/assets/graphic-designs/Real-Estate/realestate1.png",
+      "/assets/graphic-designs/Real-Estate/realestate2.png",
+      "/assets/graphic-designs/Real-Estate/realestate3.png",
+    ],
+  },
+  {
+    id: "skincare",
+    title: "Skincare",
+    description: "Vibrant, on-brand visuals for skincare promotions and product highlights.",
+    images: [
+      "/assets/graphic-designs/skincare/6.png",
+      "/assets/graphic-designs/skincare/2.png",
+      "/assets/graphic-designs/skincare/3.png",
+      "/assets/graphic-designs/skincare/4.png",
+      "/assets/graphic-designs/skincare/5.png",
     ],
   },
   {
