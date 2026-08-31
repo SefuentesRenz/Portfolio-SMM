@@ -87,7 +87,7 @@ const sampleProjectGroups = [
 
 const shortFormVideos = [
   { src: "/assets/short-form-videos/Pizza Edit.mp4", title: "Pizza Edit" },
-  { src: "/assets/short-form-videos/Steak Video Edit.mp4", title: "Steak Video Edit" },
+  { src: "/assets/short-form-videos/Steak-Video-Edit.mp4", title: "Steak Video Edit" },
   { src: "/assets/short-form-videos/Skincare Video Edit.mp4", title: "Skincare Video Edit" },
   { src: "/assets/short-form-videos/Camera.mp4", title: "Camera Video Edit" },
 ];
