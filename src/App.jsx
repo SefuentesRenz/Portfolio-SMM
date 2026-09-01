@@ -25,7 +25,9 @@ const projects = [
 
 const aboutImage = "/assets/about-portrait.JPG";
 const caseStudyRoute = "/case-study";
-const caseStudyImage = "/assets/case-study/Analytics - Pixel Pickers.png";
+const caseStudyImage = "/assets/case-study/analytics-views.png";
+const caseStudyImage2 = "/assets/case-study/analytics-engagement.png";
+const caseStudyImage3 = "/assets/case-study/analytics-messages.png";
 
 const sampleProjectGroups = [
   {
@@ -87,7 +89,7 @@ const sampleProjectGroups = [
 
 const shortFormVideos = [
   { src: "/assets/short-form-videos/Pizza Edit.mp4", title: "Pizza Edit" },
-  { src: "/assets/short-form-videos/Steak-Video-Edit.mp4", title: "Steak Video Edit" },
+  { src: "/assets/short-form-videos/Steak-Video-Edit-1080p.mp4?v=20260902b", poster: "/assets/short-form-videos/Steak-Video-Edit-1080p.jpg?v=20260902b", title: "Steak-Video-Edit" },
   { src: "/assets/short-form-videos/Skincare Video Edit.mp4", title: "Skincare Video Edit" },
   { src: "/assets/short-form-videos/Camera.mp4", title: "Camera Video Edit" },
 ];
@@ -96,6 +98,138 @@ const contentCalendarSlides = [
   "/assets/content-calendar/Content Calendar.png",
   "/assets/content-calendar/Content Calendar 2.png",
 ];
+
+function PlayableVideo({ src, poster, className = "" }) {
+  const ref = React.useRef(null);
+  const [error, setError] = React.useState(null);
+  const [canPlay, setCanPlay] = React.useState(false);
+  const [headInfo, setHeadInfo] = React.useState(null);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    async function probe() {
+      try {
+        const res = await fetch(src, { method: 'HEAD' });
+        if (!cancelled) setHeadInfo({ status: res.status, type: res.headers.get('content-type') });
+      } catch (e) {
+        if (!cancelled) setHeadInfo({ error: e.message });
+      }
+    }
+    probe();
+    return () => { cancelled = true; };
+  }, [src]);
+
+  const attemptPlay = async () => {
+    const el = ref.current;
+    if (!el) return;
+    try {
+      await el.play();
+      setCanPlay(true);
+    } catch (e) {
+      setError(e.message || String(e));
+    }
+  };
+
+  const reload = () => {
+    const el = ref.current;
+    if (!el) return;
+    setError(null);
+    setCanPlay(false);
+    try { el.load(); } catch (e) {}
+  };
+
+  return (
+    <div className={`relative ${className}`}>
+      <video
+        ref={ref}
+        className="h-full w-full object-contain object-center bg-black"
+        preload="none"
+        playsInline
+        controls
+        poster={poster ? encodeURI(poster) : undefined}
+        onCanPlay={() => setCanPlay(true)}
+        onError={(e) => {
+          const mediaError = e?.target?.error;
+          setError(mediaError ? `code:${mediaError.code}` : 'unknown');
+        }}
+      >
+        <source src={encodeURI(src)} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+      {!canPlay && !error && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-white/90 bg-black/30">
+          <svg className="h-12 w-12 mb-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 3v18l15-9L5 3z" fill="currentColor" />
+          </svg>
+          <div className="text-sm">Click the play button to start</div>
+        </div>
+      )}
+
+      {error && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 text-white p-4 text-sm">
+          <div className="mb-2">Playback error: {String(error)}</div>
+          {headInfo && (
+            <div className="mb-2 text-xs text-white/70">Server: {headInfo.status} · {headInfo.type || 'unknown'}</div>
+          )}
+          <div className="flex gap-2">
+            <button onClick={reload} className="rounded bg-white/10 px-3 py-1">Retry</button>
+            <a href={src} target="_blank" rel="noreferrer" className="rounded bg-white/10 px-3 py-1">Open file</a>
+            <a href={src} download className="rounded bg-white/10 px-3 py-1">Download</a>
+            <button onClick={attemptPlay} className="rounded bg-white/10 px-3 py-1">Attempt Play</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function VideoWithDebug({ src, poster, className = "" }) {
+  const ref = React.useRef(null);
+  const [error, setError] = React.useState(null);
+  const [playing, setPlaying] = React.useState(false);
+
+  return (
+    <div className={`relative ${className}`}>
+      <video
+        ref={ref}
+        controls
+        preload="metadata"
+        playsInline
+        poster={poster ? encodeURI(poster) : undefined}
+        className="block h-auto w-full bg-black object-contain"
+        onCanPlay={() => setError(null)}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onError={(e) => {
+          const mediaError = e?.target?.error;
+          setError(mediaError ? `code:${mediaError.code}` : 'unknown');
+          console.error('Video error', mediaError, src);
+        }}
+      >
+        <source src={encodeURI(src)} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+      {error && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 text-white p-4 text-sm">
+          <div className="mb-2">Playback error: {String(error)}</div>
+          <div className="mb-2 text-xs text-white/70">Try opening the file directly.</div>
+          <div className="flex gap-2">
+            <a href={src} target="_blank" rel="noreferrer" className="rounded bg-white/10 px-3 py-1">Open file</a>
+            <a href={src} download className="rounded bg-white/10 px-3 py-1">Download</a>
+          </div>
+        </div>
+      )}
+
+      {!error && !playing && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          {/* empty overlay to keep controls visible */}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const revealStyles = `
   .reveal {
@@ -229,10 +363,25 @@ function ContactForm() {
 }
 function CaseStudyPage({ onBack }) {
 
-const galleryVideo1 = "/assets/short-form-videos/Camera.mp4";
-  const galleryImage1 = "/assets/case-study/Camera-edit1.jpg";
-  const galleryImage2 = "/assets/case-study/Camera-edit2.jpg";
-  const galleryImage3 = "/assets/case-study/Camera-edit3.jpg";
+const galleryVideo1 = "/assets/short-form-videos/Steak-Video-Edit-1080p.mp4?v=20260902b";
+  const galleryImage1 = "/assets/case-study/Camera-edit1.png";
+  const galleryImage2 = "/assets/case-study/Camera-edit2.png";
+  const galleryVideo4 = "/assets/case-study/Camera-edit3.mp4";
+  const [lightboxSrc, setLightboxSrc] = React.useState(null);
+
+  React.useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") setLightboxSrc(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const openLightbox = (src) => setLightboxSrc(src);
+  const closeLightbox = () => setLightboxSrc(null);
+  const enterFullscreen = (el) => {
+    if (!el) return;
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+  };
 
     return (
     <main className="min-h-screen bg-slate-950 text-white">
@@ -242,7 +391,7 @@ const galleryVideo1 = "/assets/short-form-videos/Camera.mp4";
           <div className="flex flex-col gap-6">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.35em] text-red-300">Experience & Case Study</p>
-              <h1 className="mt-3 text-4xl font-black tracking-tight text-white sm:text-5xl">Analytics - Pixel Pickers</h1>
+              <h1 className="mt-3 text-4xl font-black tracking-tight text-white sm:text-5xl">Analytics - The American Backard Tagum</h1>
               <p className="mt-4 max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
                 A focused look at how a new Facebook page started generating stronger views and engagement through clear creative direction, consistent posting, and performance-aware content.
               </p>
@@ -258,56 +407,58 @@ const galleryVideo1 = "/assets/short-form-videos/Camera.mp4";
         </div>
       </section>
 
-      {/* Case Study Summary */}
-      {/* <section className="mx-auto w-full max-w-6xl px-6 py-16 lg:px-8">
-        <article className="overflow-hidden rounded-[2rem] border grid grid-cols-2 border-white/10 bg-white/5 shadow-[0_30px_120px_rgba(0,0,0,0.35)] backdrop-blur">
-          <div className="grid gap-0 lg:grid-rows-[auto_auto]">
-            
-            <div className="border-t border-white/10 p-6 sm:p-8 lg:p-10">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-red-300">Case Study Summary</p>
-              <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl">A Facebook page that started attracting real attention.</h2>
-              <p className="mt-4 max-w-4xl text-base leading-8 text-slate-300 sm:text-lg">
-                This page was built to grow visibility, reach the right audience, and turn engagement into momentum. The content direction focused on strong hooks, clear visuals, and consistent posting so the brand could build trust and keep improving performance over time.
-              </p>
-              <div className="mt-8 flex flex-wrap items-center gap-4">
-                <button
-                  type="button"
-                  onClick={onBack}
-                  className="rounded-full bg-red-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-red-500"
-                >
-                  Back to Portfolio
-                </button>
-                <span className="text-sm text-slate-400">Add metrics and results here when you want to expand this case study.</span>
-              </div>
-            </div>
-          </div>
-        </article>
-      </section> */}
 
       {/* CLIENT OVERVIEW */}
       <section className="mx-auto w-full max-w-6xl px-6 pb-4 lg:px-8">
         <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 backdrop-blur sm:p-10 lg:p-12">
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-red-300">Client Overview</p>
-          <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl">Pixel Pickers</h2>
+          <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl">The American Backyard Tagum</h2>
           <p className="mt-4 max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
-            "Pixel Pickers" is a camera rental business that provides affordable access to camera equipment for individuals who need it for personal or professional use. The business focuses on making camera rentals simple, accessible, and reliable for customers.
-          </p>
+"The American Backyard Tagum is a restaurant that offers a diverse dining experience featuring American comfort food, steaks, burgers, pizzas, pastas, and other flavorful dishes. The restaurant focuses on providing quality food, a warm and welcoming atmosphere, and memorable dining experiences for families, friends, couples, and groups in Tagum City."          </p>
         </div>
       </section>
 
-      {/* PROJECT OBJECTIVES */}
+
+       {/* PROJECT OBJECTIVES */}
       <section className="mx-auto w-full max-w-6xl px-6 pb-4 lg:px-8">
         <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 backdrop-blur sm:p-10 lg:p-12">
-          <p className="text-sm font-semibold uppercase tracking-[0.35em] text-red-300">Project Objectives</p>
-          <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl">Goals & Direction</h2>
+          <p className="text-sm font-semibold uppercase tracking-[0.35em] text-red-300">Challenges</p>
+          <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl">Business Account Challenges</h2>
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
             {[
-              "Increase Pixel Pickers' social media presence.",
-              "Improve brand awareness and visibility.",
-              "Establish a consistent content strategy.",
-              "Increase audience engagement on Facebook.",
-              "Promote camera rental services through quality content.",
-              "Build trust and credibility for the business.",
+              <h2 className=" text-xl font-semibold text-white sm:text-xl">
+     Inactive Social Media Presence<br></br>
+     <span className=" text-lg font-normal text-gray sm:text-sm">Inconsistent posting and limited content activity resulted in reduced
+        visibility and fewer opportunities to reach potential customers.</span></h2>,
+
+        <h2 className=" text-xl font-semibold text-white sm:text-xl">
+     Limited Customer Engagement<br></br>
+     <span className=" text-lg font-normal text-gray sm:text-sm">Customer comments and inquiries were not consistently acknowledged or
+        responded to, making the account feel less active and less connected
+        with its audience.</span></h2>,
+
+        <h2 className=" text-xl font-semibold text-white sm:text-xl">
+     Delayed Direct Message Responses<br></br>
+     <span className=" text-lg font-normal text-gray sm:text-sm">Potential customers did not always receive immediate responses to their
+        inquiries, creating the risk of losing interested customers and
+        potential sales.</span></h2>,
+
+        <h2 className=" text-xl font-semibold text-white sm:text-xl">
+     Weak Brand Awareness<br></br>
+     <span className=" text-lg font-normal text-gray sm:text-sm">The account had limited content that consistently showcased the
+        restaurant, its food, dining experience, and overall brand identity.</span></h2>,
+
+        <h2 className=" text-xl font-semibold text-white sm:text-xl">
+     Inconsistent Promotion Communication<br></br>
+     <span className=" text-lg font-normal text-gray sm:text-sm">Promos, special offers, and other important restaurant information were
+        not consistently communicated, limiting awareness of available deals.</span></h2>,
+
+        <h2 className=" text-xl font-semibold text-white sm:text-xl">
+     Limited Consideration-Driven Content<br></br>
+     <span className=" text-lg font-normal text-gray sm:text-sm">There was a lack of content designed to give potential customers a
+        reason to visit, such as showcasing the food, dining experience,
+        customer moments, and reasons to choose the restaurant.</span></h2>,
+,
             ].map((item) => (
               <li key={item} className="flex items-start gap-3 text-base leading-7 text-slate-300">
                 <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-red-400" />
@@ -318,120 +469,109 @@ const galleryVideo1 = "/assets/short-form-videos/Camera.mp4";
         </div>
       </section>
 
-      {/* RESPONSIBILITIES */}
+
+
+      
+
+      
+      {/* STRATEGY */}
+      <section className="mx-auto w-full max-w-6xl px-6 pb-4 lg:px-8">
+  <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 backdrop-blur sm:p-10 lg:p-12">
+    <p className="text-sm font-semibold uppercase tracking-[0.35em] text-red-300">
+      STRATEGY
+    </p>
+
+    <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl">
+    Approach & Execution
+    </h2>
+
+    <div className="mt-6 space-y-4 max-w-4xl">
+      <p className="text-base leading-8 text-slate-300 sm:text-lg">
+        <span className="font-semibold text-white">Industry Trend Research & Adaptation</span>{" "}  <br />
+        Researched restaurant industry trends, popular formats, and effective hooks, then adapted them to the brand to create more engaging content.
+      </p>
+
+      <p className="text-base leading-8 text-slate-300 sm:text-lg">
+        <span className="font-semibold text-white">Consistent Content Strategy</span>{" "}  <br />
+        Maintained a consistent posting schedule with content focused on food, customer experiences, promotions, and brand awareness.
+      </p>
+
+      <p className="text-base leading-8 text-slate-300 sm:text-lg">
+        <span className="font-semibold text-white">Food & Experience-Focused Content</span>{" "}  <br />
+        Showcased the restaurant’s food, ambiance, and dining experience through engaging visuals designed to attract potential customers.
+      </p>
+
+      <p className="text-base leading-8 text-slate-300 sm:text-lg">
+        <span className="font-semibold text-white">Promotional & Conversion Content</span>{" "}  <br />
+        Created clear and compelling content for promos and offers, using strong hooks and calls-to-action to encourage inquiries and visits.
+      </p>
+
+      <p className="text-base leading-8 text-slate-300 sm:text-lg">
+        <span className="font-semibold text-white">Community Management</span>{" "}  <br />
+        Actively monitored comments and messages to provide timely responses, improve customer interaction, and support potential sales.
+      </p>
+
+      <p className="text-base leading-8 text-slate-300 sm:text-lg">
+        <span className="font-semibold text-white">Local Brand Awareness</span>{" "}  <br />
+        Used Tagum City-focused content, messaging, and relevant keywords to strengthen local visibility and brand recognition.
+      </p>
+
+      <p className="text-base leading-8 text-slate-300 sm:text-lg">
+        <span className="font-semibold text-white">Performance-Based Optimization</span>{" "}  <br />
+Reviewed content performance to identify what worked best and used those insights to improve future content and engagement.      </p>
+    </div>
+  </div>
+</section>
+
+
+
+      {/* PROJECT OBJECTIVES */}
       <section className="mx-auto w-full max-w-6xl px-6 pb-4 lg:px-8">
         <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 backdrop-blur sm:p-10 lg:p-12">
-          <p className="text-sm font-semibold uppercase tracking-[0.35em] text-red-300">Responsibilities</p>
-          <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl">What I Handled</h2>
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <p className="text-sm font-semibold uppercase tracking-[0.35em] text-red-300">Project Objectives</p>
+          <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl">Goals & Direction</h2>
+          <ul className="mt-6 grid gap-3 sm:grid-cols-2">
             {[
-              {
-                title: "Social Media Management",
-                items: [
-                  "Managed daily social media activities and page engagement.",
-                  "Planned and organized content schedules for consistent posting.",
-                  "Maintained consistent brand messaging.",
-                ],
-              },
-              {
-                title: "Graphic Design",
-                items: [
-                  "Designed static posts for promotions and information.",
-                  "Created branded visual content for the page.",
-                ],
-              },
-              {
-                title: "Video Editing",
-                items: [
-                  "Produced and edited short-form promotional videos.",
-                  "Created engaging reels for social media posting.",
-                ],
-              },
-              {
-                title: "Content Writing",
-                items: [
-                  "Wrote captions for posts and promotions.",
-                  "Created clear and engaging call-to-action messages.",
-                ],
-              },
-              {
-                title: "Content Planning",
-                items: [
-                  "Researched trends related to camera rentals.",
-                  "Generated content ideas aligned with business goals.",
-                  "Organized content calendars for structured posting.",
-                ],
-              },
-            ].map((role) => (
-              <div key={role.title} className="rounded-2xl border border-white/10 bg-white/5 p-6">
-                <p className="text-sm font-bold uppercase tracking-widest text-red-300">{role.title}</p>
-                <ul className="mt-4 flex flex-col gap-2.5">
-                  {role.items.map((item) => (
-                    <li key={item} className="flex items-start gap-2.5 text-sm leading-6 text-slate-300">
-                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-red-400" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              "Increase The American Backyard Tagum's social media visibility and local presence.",
+              "Strengthen brand awareness and establish a recognizable identity among Tagum City audiences",
+              "Develop and implement a consistent, audience-focused content strategy",
+              "Increase organic engagement and audience interaction on Facebook.",
+              "Showcase the restaurant's food, dining experience, promotions, and brand personality through compelling content.",
+              "Build customer trust and social proof through authentic customer experiences and community engagement.",
+              "Drive restaurant visits, inquiries, and conversions through strategic promotional and conversion-focused content.",
+            ].map((item) => (
+              <li key={item} className="flex items-start gap-3 text-base leading-7 text-slate-300">
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-red-400" />
+                {item}
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
 
-      {/* CONTENT TYPES CREATED */}
-      <section className="mx-auto w-full max-w-6xl px-6 pb-4 lg:px-8">
-        <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 backdrop-blur sm:p-10 lg:p-12">
-          <p className="text-sm font-semibold uppercase tracking-[0.35em] text-red-300">Content Types Created</p>
-          <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl">Formats & Deliverables</h2>
-          <div className="mt-8 grid gap-6 sm:grid-cols-3">
-            {[
-              {
-                label: "Static Graphics",
-                description: "Promotional and informational posts covering camera rental services, equipment highlights, business updates, and general promotional content.",
-              },
-              {
-                label: "Reels / Short Videos",
-                description: "Short-form videos designed to capture audience attention, increase reach and visibility, and promote rental services.",
-              },
-              {
-                label: "Stories",
-                description: "Daily story content focused on brand updates, quick promotions, audience engagement, and simple tips and announcements.",
-              },
-            ].map((type) => (
-              <div key={type.label} className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-6">
-                <p className="text-base font-bold text-white">{type.label}</p>
-                <p className="text-sm leading-7 text-slate-400">{type.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
+     
       {/* PORTFOLIO GALLERY */}
       <section className="mx-auto w-full max-w-6xl px-6 pb-4 lg:px-8">
         <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 backdrop-blur sm:p-10 lg:p-12">
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-red-300">Portfolio Gallery</p>
           <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl">Content Samples</h2>
           <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {[
-  { type: "video", src: galleryVideo1 },
-  { type: "image", src: galleryImage1 },
-  { type: "image", src: galleryImage2 },
-  { type: "image", src: galleryImage3 },
-            ].map((item, i) => (
+            {[
+          { type: "video", src: galleryVideo1, poster: "/assets/short-form-videos/Steak-Video-Edit-1080p.jpg?v=20260902b" },
+          { type: "image", src: galleryImage1 },
+          { type: "image", src: galleryImage2 },
+          { type: "video", src: galleryVideo4 },
+              ].map((item, i) => (
         <div key={i} className="aspect-[3/4] overflow-hidden rounded-2xl border border-white/10 bg-slate-900">
     {item.type === "video" ? (
-      <video
-        src={item.src}
-        className="h-full w-full object-cover object-center"
-        autoPlay
-        muted
-        loop
-        playsInline
-      />
+      <PlayableVideo src={item.src} poster={item.poster} className="h-full w-full" />
     ) : (
-      <img src={item.src} alt={`Gallery item ${i + 1}`} className="h-full w-full object-cover object-center" />
+      <img
+        src={encodeURI(item.src)}
+        alt={`Gallery item ${i + 1}`}
+        className="h-full w-full object-cover object-center transition-transform duration-300 hover:scale-105 cursor-zoom-in"
+        onClick={() => openLightbox(item.src)}
+      />
     )}
   </div>
 ))}
@@ -439,19 +579,59 @@ const galleryVideo1 = "/assets/short-form-videos/Camera.mp4";
   </div>
 </section>
 
+{lightboxSrc && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-6" onClick={closeLightbox}>
+    <div className="relative max-h-full max-w-full">
+      <img
+        id="lightbox-img"
+        src={encodeURI(lightboxSrc)}
+        alt="Preview"
+        className="max-h-[90vh] max-w-[90vw] object-contain"
+        onClick={(e) => e.stopPropagation()}
+      />
+      <div className="absolute top-3 right-3 flex gap-2">
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); enterFullscreen(document.getElementById('lightbox-img')); }}
+          className="rounded-full bg-white/10 px-3 py-1 text-sm text-white"
+        >
+          ⤢
+        </button>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); closeLightbox(); }}
+          className="rounded-full bg-white/10 px-3 py-1 text-sm text-white"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       {/* CONCLUSION */}
       <section className="mx-auto w-full max-w-6xl px-6 pb-16 lg:px-8">
         <div className="rounded-[2rem] border border-red-500/20 bg-red-950/20 p-8 backdrop-blur sm:p-10 lg:p-12">
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-red-300">Conclusion</p>
           <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl">Results & Takeaways</h2>
           <div className="bg-slate-900/40 p-4 sm:p-6">
-              <div className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-900 max-w-sm h-64">
-                <img src={encodeURI(caseStudyImage)} alt="Analytics case study for Pixel Pickers" className="h-full w-full object-cover object-center" />
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {[caseStudyImage, caseStudyImage2, caseStudyImage3].map((src, idx) => (
+                <div key={idx} className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-900">
+                  <img
+                    src={encodeURI(src)}
+                    alt={`Case study ${idx + 1}`}
+                    className="h-48 w-full object-cover object-center transform transition duration-300 hover:scale-105 hover:-translate-y-1 hover:shadow-2xl cursor-pointer"
+                    onClick={() => openLightbox(src)}
+                  />
+                </div>
+              ))}
             </div>
-          <p className="mt-4 max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
-  Through just one month of consistent content creation, social media management, and visual design, Pixel Pickers was able to improve its online presence and connect better with its audience. The project achieved its monthly goals — increasing visibility, engagement, and brand trust through simple and effective content strategies.
-          </p>
+          </div>
+          <p className="mt-4 max-w-4xl text-base leading-8 text-slate-300 sm:text-lg">
+              Within just one month of consistent social media management, strategic content creation, and visual design, The American Backyard Tagum achieved noticeable growth across its social media performance. The restaurant experienced a significant increase in views, engagement, followers, and customer messages, demonstrating stronger audience reach, interaction, and interest in the brand compared to the period before the campaign.
+              <br></br> <br></br>
+              The before-and-after results highlight the impact of implementing a consistent, audience-focused content strategy. By combining engaging food content, promotional campaigns, customer experiences, and high-quality visuals, The American Backyard Tagum was able to strengthen its digital presence, reach more potential customers, and generate more meaningful interactions within a single month.          </p>
           <div className="mt-8">
             <button
               type="button"
@@ -679,7 +859,7 @@ export default function App() {
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
                   {shortFormVideos.map((video) => (
                     <figure key={video.src} className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-sm">
-                      <video className="block h-auto w-full bg-black object-contain" controls preload="metadata" playsInline src={encodeURI(video.src)} />
+                      <VideoWithDebug src={video.src} poster={video.poster} />
                     </figure>
                   ))}
                 </div>
@@ -747,15 +927,14 @@ export default function App() {
 
     {/* Right column - Content */}
     <div className="p-6 sm:p-8 lg:p-10 lg:w-1/2 flex flex-col justify-center">
-      <p className="text-2xl font-semibold uppercase tracking-[0.3em] text-red-600">Pixel Pickers</p>
+      <p className="text-2xl font-semibold uppercase tracking-[0.3em] text-red-600">The American Backyard</p>
       <h4 className="mt-3 text-xl font-bold text-slate-950">
-        A new Facebook page that gained stronger views and engagement.
+        A Business Account that gained stronger views and engagement.
       </h4>
       <p className="mt-4 text-base leading-8 text-slate-600 sm:text-lg">
-        This case study highlights how a new Facebook page started building attention with a focused
+        This case study highlights how a Business Account Page started building attention with a focused
         content strategy, sharper visual direction, and consistent optimization. The goal was to
-        create momentum, improve engagement, and make the brand feel active and credible from the
-        start.
+        create momentum, improve engagement, and make the brand feel active and credible.
       </p>
       <div className="mt-8">
         <button
@@ -823,3 +1002,4 @@ export default function App() {
     </main>
   );
 }
+
