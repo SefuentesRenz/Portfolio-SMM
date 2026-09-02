@@ -143,8 +143,7 @@ function PlayableVideo({ src, poster, className = "" }) {
       <video
         ref={ref}
         className="h-full w-full object-contain object-center bg-black"
-        preload="none"
-        playsInline
+        preload="metadata"        playsInline
         controls
         poster={poster ? encodeURI(poster) : undefined}
         onCanPlay={() => setCanPlay(true)}
@@ -158,8 +157,7 @@ function PlayableVideo({ src, poster, className = "" }) {
       </video>
 
       {!canPlay && !error && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-white/90 bg-black/30">
-          <svg className="h-12 w-12 mb-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center bg-black/30 text-white/90">          <svg className="h-12 w-12 mb-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M5 3v18l15-9L5 3z" fill="currentColor" />
           </svg>
           <div className="text-sm">Click the play button to start</div>
@@ -414,7 +412,7 @@ const galleryVideo1 = "/assets/short-form-videos/Steak-Video-Edit-1080p.mp4?v=20
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-red-300">Client Overview</p>
           <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl">The American Backyard Tagum</h2>
           <p className="mt-4 max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
-"The American Backyard Tagum is a restaurant that offers a diverse dining experience featuring American comfort food, steaks, burgers, pizzas, pastas, and other flavorful dishes. The restaurant focuses on providing quality food, a warm and welcoming atmosphere, and memorable dining experiences for families, friends, couples, and groups in Tagum City."          </p>
+The American Backyard Tagum is a restaurant that offers a diverse dining experience featuring American comfort food, steaks, burgers, pizzas, pastas, and other flavorful dishes. The restaurant focuses on providing quality food, a warm and welcoming atmosphere, and memorable dining experiences for families, friends, couples, and groups in Tagum City.</p>
         </div>
       </section>
 
