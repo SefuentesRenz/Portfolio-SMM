@@ -91,7 +91,7 @@ const shortFormVideos = [
   { src: "/assets/short-form-videos/Pizza Edit.mp4", title: "Pizza Edit" },
   { src: "/assets/short-form-videos/Steak-Video-Edit-1080p.mp4?v=20260902b", poster: "/assets/short-form-videos/Steak-Video-Edit-1080p.jpg?v=20260902b", title: "Steak-Video-Edit" },
   { src: "/assets/short-form-videos/Skincare Video Edit.mp4", title: "Skincare Video Edit" },
-  { src: "/assets/short-form-videos/Camera.mp4", title: "Camera Video Edit" },
+  { src: "/assets/short-form-videos/Parmigiano Reggiano Final-web.mp4", title: "Parmigiano Reggiano Final" },
 ];
 
 const contentCalendarSlides = [
